@@ -41,7 +41,7 @@ export default function Modal() {
               <Dialog.Panel className="relative w-full max-w-sm rounded-lg bg-white p-6 space-y-2">
                 <button
                   onClick={() => dispatch(closeModal())}
-                  className="absolute top-2 right-2 text-slate-400"
+                  className="absolute top-2 right-2 text-slate-400 hover:text-red-300 rounded outline-red-200 duration-200"
                   ref={closeButtonRef}>
                   <Cancel/>
                 </button>

@@ -1,10 +1,12 @@
 import axios from "axios";
 import Card from "../components/Card";
 import { GetServerSideProps } from "next";
-import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
 import Modal from "../components/Modal";
-import { useAppDispatch } from "../redux/hooks";
+import Pagination from "../components/Pagination";
+import { useEffect, useState } from "react";
+import toast, { Toaster } from "react-hot-toast";
+import { useRouter } from "next/router";
+import { LogOut } from "iconoir-react";
 
 type Props = {
   user: ResponseInterface,
@@ -23,16 +25,15 @@ export default function Home({ user, data, page }: Props) {
 
   // HOOKS
   const router = useRouter();
-  const dispatch = useAppDispatch();
 
   // EFFECTS
   useEffect(() => {
-    if(currentPage > maxPage) {
-      setCurrentPage(maxPage);
-      alert(`max page is ${maxPage}`);
-    } else if(currentPage < minPage) {
+    if(currentPage < minPage) {
       setCurrentPage(minPage);
-      alert(`min page is ${minPage}`);
+      toast.error(`min page is ${minPage}`, { duration: 1000 });
+    } else if(currentPage > maxPage) {
+      setCurrentPage(maxPage);
+      toast.error(`max page is ${maxPage}`, { duration: 1000 });
     } else {
       onChangePage(currentPage);
     }
@@ -44,32 +45,50 @@ export default function Home({ user, data, page }: Props) {
     const updatedPageNumber = !pageNumber ? minPage : pageNumber;
 
     router.push({
-      pathname: router.pathname,
-      query: {
-        page: updatedPageNumber
-      }
-    });
+        pathname: router.pathname,
+        query: {
+          page: updatedPageNumber
+        }
+      },
+      undefined,
+      {
+        scroll: false
+      });
+  };
+
+  const onLogout = () => {
+    router.push("/auth");
   };
 
   // VIEWS
   return (
-    <main>
-      <div className="flex gap-x-2">
-        <div onClick={() => setCurrentPage(prevState => prevState - 1)}>prev</div>
-        <input
-          name="page"
-          type="number"
-          value={currentPage}
-          onChange={(e) => setCurrentPage(parseInt(e.target.value))}
-        />
-        <div onClick={() => setCurrentPage(prevState => prevState + 1)}>next</div>
+    <main className="m-5 space-y-10">
+
+      <div className="max-w-2xl lg:max-w-4xl mx-auto">
+        <div className="flex justify-between items-center pb-2">
+          <h1 className="font-bold text-3xl text-slate-300">Your Profile</h1>
+          <button
+            onClick={onLogout}
+            className="font-medium flex gap-1 text-sm text-slate-500 h-fit items-center bg-slate-50 px-3 py-2 rounded-md border-2 border-slate-200 hover:bg-slate-400 hover:border-slate-500 hover:text-white duration-200">
+            <LogOut/> Logout
+          </button>
+        </div>
+        <Card user={user.results[0]}/>
       </div>
-      <div className="flex flex-col mx-5 gap-y-2">
-        {data.results?.map((user, index) => (
-          <Card key={index} user={user}/>
-        ))}
+
+      <div className="max-w-2xl lg:max-w-4xl mx-auto space-y-2">
+        <h1 className="font-bold text-3xl text-slate-300">Your Friends</h1>
+        <Pagination {...{ currentPage, setCurrentPage }}/>
+        <div className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
+          {data.results?.map((friend, index) => (
+            <Card key={index} user={friend}/>
+          ))}
+        </div>
+        <Pagination {...{ minPage, maxPage, currentPage, setCurrentPage }}/>
       </div>
+
       <Modal/>
+      <Toaster/>
     </main>
   );
 }
