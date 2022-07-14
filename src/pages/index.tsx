@@ -2,12 +2,16 @@ import axios from "axios";
 import Card from "../components/Card";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Props = {
   data: ResponseInterface,
   page: number
 }
+
+const minPage = 1;
+const maxPage = 20; // maximum of 500 friends
+const resultPerPage = 25;
 
 export default function Home({ data, page }: Props) {
   // STATES
@@ -16,10 +20,23 @@ export default function Home({ data, page }: Props) {
   // HOOKS
   const router = useRouter();
 
+  // EFFECTS
+  useEffect(() => {
+    if(currentPage > maxPage) {
+      setCurrentPage(maxPage);
+      alert(`max page is ${maxPage}`);
+    } else if(currentPage < minPage) {
+      setCurrentPage(minPage);
+      alert(`min page is ${minPage}`);
+    } else {
+      onChangePage(currentPage);
+    }
+
+  }, [currentPage]);
+
   // FUNCTIONS
   const onChangePage = (pageNumber: number) => {
-    const updatedPageNumber = pageNumber <= 0 ? 1 : pageNumber;
-    setCurrentPage(updatedPageNumber);
+    const updatedPageNumber = !pageNumber ? minPage : pageNumber;
 
     router.push({
       pathname: router.pathname,
@@ -33,14 +50,14 @@ export default function Home({ data, page }: Props) {
   return (
     <main>
       <div className="flex gap-x-2">
-        <div onClick={() => onChangePage(page - 1)}>prev</div>
+        <div onClick={() => setCurrentPage(prevState => prevState - 1)}>prev</div>
         <input
           name="page"
           type="number"
           value={currentPage}
-          onChange={(e) => onChangePage(parseInt(e.target.value))}
+          onChange={(e) => setCurrentPage(parseInt(e.target.value))}
         />
-        <div onClick={() => onChangePage(page + 1)}>next</div>
+        <div onClick={() => setCurrentPage(prevState => prevState + 1)}>next</div>
       </div>
       <div className="flex flex-col gap-y-3">
         {data.results?.map((user, index) => (
@@ -52,8 +69,9 @@ export default function Home({ data, page }: Props) {
 }
 
 export const getServerSideProps: GetServerSideProps = async({ query }) => {
-  const page = parseInt(query.page as string) || 1;
-  const { data } = await axios.get(`https://randomuser.me/api/?seed=lll&page=${page}&results=25`);
+  let page = parseInt(query.page as string) || minPage;
+  page = page >= maxPage ? maxPage : page;
+  const { data } = await axios.get(`https://randomuser.me/api/?seed=lll&page=${page}&results=${resultPerPage}`);
 
   return {
     props: {
