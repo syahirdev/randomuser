@@ -1,8 +1,8 @@
-export interface ResponseInterface {
+interface ResponseInterface {
   results: ResultsEntity[] | null;
   info: Info;
 }
-export interface ResultsEntity {
+interface ResultsEntity {
   gender: string;
   name: Name;
   location: Location;
@@ -16,12 +16,12 @@ export interface ResultsEntity {
   picture: Picture;
   nat: string;
 }
-export interface Name {
+interface Name {
   title: string;
   first: string;
   last: string;
 }
-export interface Location {
+interface Location {
   street: Street;
   city: string;
   state: string;
@@ -30,19 +30,19 @@ export interface Location {
   coordinates: Coordinates;
   timezone: Timezone;
 }
-export interface Street {
+interface Street {
   number: number;
   name: string;
 }
-export interface Coordinates {
+interface Coordinates {
   latitude: string;
   longitude: string;
 }
-export interface Timezone {
+interface Timezone {
   offset: string;
   description: string;
 }
-export interface Login {
+interface Login {
   uuid: string;
   username: string;
   password: string;
@@ -51,20 +51,20 @@ export interface Login {
   sha1: string;
   sha256: string;
 }
-export interface DobOrRegistered {
+interface DobOrRegistered {
   date: string;
   age: number;
 }
-export interface Id {
+interface Id {
   name: string;
   value?: string | null;
 }
-export interface Picture {
+interface Picture {
   large: string;
   medium: string;
   thumbnail: string;
 }
-export interface Info {
+interface Info {
   seed: string;
   results: number;
   page: number;
