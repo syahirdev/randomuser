@@ -3,19 +3,22 @@ import Card from "../components/Card";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import Modal from "../components/Modal";
 
 type Props = {
   data: ResponseInterface,
   page: number
 }
 
-const minPage = 1;
-const maxPage = 20; // maximum of 500 friends
+const numOfFriends = 500;
 const resultPerPage = 25;
+const minPage = 1;
+const maxPage = Math.ceil(numOfFriends / resultPerPage); // maximum of 500 friends
 
 export default function Home({ data, page }: Props) {
   // STATES
   const [currentPage, setCurrentPage] = useState(page);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // HOOKS
   const router = useRouter();
@@ -49,6 +52,8 @@ export default function Home({ data, page }: Props) {
   // VIEWS
   return (
     <main>
+      <Modal {...{ isModalOpen, setIsModalOpen }}/>
+      <button onClick={() => setIsModalOpen(true)}>Open</button>
       <div className="flex gap-x-2">
         <div onClick={() => setCurrentPage(prevState => prevState - 1)}>prev</div>
         <input
