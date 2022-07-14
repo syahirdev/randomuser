@@ -4,8 +4,10 @@ import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Modal from "../components/Modal";
+import { useAppDispatch } from "../redux/hooks";
 
 type Props = {
+  user: ResponseInterface,
   data: ResponseInterface,
   page: number
 }
@@ -15,13 +17,13 @@ const resultPerPage = 25;
 const minPage = 1;
 const maxPage = Math.ceil(numOfFriends / resultPerPage); // maximum of 500 friends
 
-export default function Home({ data, page }: Props) {
+export default function Home({ user, data, page }: Props) {
   // STATES
   const [currentPage, setCurrentPage] = useState(page);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // HOOKS
   const router = useRouter();
+  const dispatch = useAppDispatch();
 
   // EFFECTS
   useEffect(() => {
@@ -52,8 +54,6 @@ export default function Home({ data, page }: Props) {
   // VIEWS
   return (
     <main>
-      <Modal {...{ isModalOpen, setIsModalOpen }}/>
-      <button onClick={() => setIsModalOpen(true)}>Open</button>
       <div className="flex gap-x-2">
         <div onClick={() => setCurrentPage(prevState => prevState - 1)}>prev</div>
         <input
@@ -64,22 +64,29 @@ export default function Home({ data, page }: Props) {
         />
         <div onClick={() => setCurrentPage(prevState => prevState + 1)}>next</div>
       </div>
-      <div className="flex flex-col gap-y-3">
+      <div className="flex flex-col mx-5 gap-y-2">
         {data.results?.map((user, index) => (
           <Card key={index} user={user}/>
         ))}
       </div>
+      <Modal/>
     </main>
   );
 }
 
 export const getServerSideProps: GetServerSideProps = async({ query }) => {
-  let page = parseInt(query.page as string) || minPage;
-  page = page >= maxPage ? maxPage : page;
+  const queryPage = parseInt(query.page as string) || minPage;
+  const page = ( queryPage >= maxPage ) ? maxPage : queryPage;
+
+  // friends
   const { data } = await axios.get(`https://randomuser.me/api/?seed=lll&page=${page}&results=${resultPerPage}`);
+
+  // user
+  const { data: user } = await axios.get(`https://randomuser.me/api/?seed=lll`);
 
   return {
     props: {
+      user,
       data,
       page
     }

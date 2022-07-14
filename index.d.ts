@@ -1,5 +1,5 @@
 interface ResponseInterface {
-  results: ResultsEntity[] | null;
+  results: ResultsEntity[];
   info: Info;
 }
 interface ResultsEntity {
