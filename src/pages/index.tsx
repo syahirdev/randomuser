@@ -6,7 +6,10 @@ import Pagination from "../components/Pagination";
 import { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { useRouter } from "next/router";
-import { LogOut } from "iconoir-react";
+import { LogOut, RefreshDouble } from "iconoir-react";
+import sha256 from "crypto-js/sha256";
+import { userData } from "../data/auth";
+import { pageData } from "../data/page";
 
 type Props = {
   user: ResponseInterface,
@@ -14,13 +17,12 @@ type Props = {
   page: number
 }
 
-const numOfFriends = 500;
-const resultPerPage = 25;
-const minPage = 1;
-const maxPage = Math.ceil(numOfFriends / resultPerPage); // maximum of 500 friends
+// VARIABLES
+const { minPage, maxPage, resultPerPage } = pageData;
 
 export default function Home({ user, data, page }: Props) {
   // STATES
+  const [state, setState] = useState(false);
   const [currentPage, setCurrentPage] = useState(page);
 
   // HOOKS
@@ -35,9 +37,20 @@ export default function Home({ user, data, page }: Props) {
       setCurrentPage(maxPage);
       toast.error(`max page is ${maxPage}`, { duration: 1000 });
     } else {
-      onChangePage(currentPage);
+      // Checked for logged in
+      if(typeof window !== "undefined") {
+        let user = JSON.parse(localStorage.getItem("randomuser-auth") || "{}");
+        if(user.username === userData.username && sha256(user.password).toString() !== userData.password) {
+          // Logged in
+          onChangePage(currentPage);
+          setState(true);
+        } else {
+          // Not logged in
+          router.push("auth");
+          setState(false);
+        }
+      }
     }
-
   }, [currentPage]);
 
   // FUNCTIONS
@@ -58,12 +71,21 @@ export default function Home({ user, data, page }: Props) {
 
   const onLogout = () => {
     router.push("/auth");
+    localStorage.removeItem("randomuser-auth");
+    setState(false);
   };
+
+  if(!state) {
+    return (
+      <div className="flex justify-center items-center h-screen w-screen">
+        <RefreshDouble fontSize="20" className="animate-spin"/>
+      </div>
+    );
+  }
 
   // VIEWS
   return (
     <main className="m-5 space-y-10">
-
       <div className="max-w-2xl lg:max-w-4xl mx-auto">
         <div className="flex justify-between items-center pb-2">
           <h1 className="font-bold text-3xl text-slate-300">Your Profile</h1>
@@ -84,7 +106,7 @@ export default function Home({ user, data, page }: Props) {
             <Card key={index} user={friend}/>
           ))}
         </div>
-        <Pagination {...{ minPage, maxPage, currentPage, setCurrentPage }}/>
+        <Pagination {...{ currentPage, setCurrentPage }}/>
       </div>
 
       <Modal/>
