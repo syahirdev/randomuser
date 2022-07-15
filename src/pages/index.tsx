@@ -11,6 +11,7 @@ import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import Card from "../components/Card";
 import { clearUserData, getUser } from "../redux/features/userSlice";
 import { clearFriendsData, getFriendlist } from "../redux/features/friendSlice";
+import Head from 'next/head'
 
 // VARIABLES
 const { minPage, maxPage, resultPerPage } = pageData;
@@ -91,6 +92,9 @@ export default function Home() {
   // VIEWS
   return (
     <main className="m-5 space-y-10">
+      <Head>
+        <title>Home | Random User</title>
+      </Head>
       <div className="max-w-2xl lg:max-w-4xl mx-auto">
         <div className="flex justify-between items-center pb-2">
           <h1 className="font-bold text-3xl text-slate-300">Your Profile</h1>
