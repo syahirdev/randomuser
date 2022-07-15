@@ -2,7 +2,8 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import sha256 from "crypto-js/sha256";
 import { useRouter } from "next/router";
 import toast, { Toaster } from "react-hot-toast";
-import { userData } from "../data/auth";
+import { authData } from "../data/auth";
+import { MissingFont } from "iconoir-react";
 
 type Inputs = {
   username: string,
@@ -11,14 +12,14 @@ type Inputs = {
 
 export default function Auth() {
   // HOOKS
-  const { register, handleSubmit, formState: { errors } } = useForm<Inputs>();
+  const { register, handleSubmit, formState: { errors }, setValue } = useForm<Inputs>();
   const router = useRouter();
 
   // FUNCTIONS
   const onSubmit: SubmitHandler<Inputs> = (data) => {
-    if(data.username !== userData.username) {
+    if(data.username !== authData.username) {
       toast.error("Username does not exist", { duration: 1000 });
-    } else if(sha256(data.password).toString() !== userData.password) {
+    } else if(sha256(data.password).toString() !== authData.password) {
       toast.error("Wrong password", { duration: 1000 });
     } else {
       router.push("/");
@@ -27,6 +28,11 @@ export default function Auth() {
         password: sha256(data.password).toString()
       }));
     }
+  };
+
+  const onAutoFill = () => {
+    setValue("username", authData.username);
+    setValue("password", authData.rawPassword);
   };
 
   // VIEWS
@@ -55,11 +61,19 @@ export default function Auth() {
           <p className="text-xs font-medium text-red-400 pt-1">Password cannot leave blank!</p>
         )}
       </div>
-      <button
-        className="font-medium text-slate-500 px-5 py-1 border-2 border-slate-200 bg-slate-100 rounded-md hover:border-slate-300 hover:bg-slate-200 duration-200"
-        type="submit">
-        Login
-      </button>
+      <div className="flex gap-x-1">
+        <button
+          className="font-medium text-slate-500 px-5 py-1 border-2 border-slate-200 bg-slate-100 rounded-md hover:border-slate-300 hover:bg-slate-200 duration-200"
+          type="submit">
+          Login
+        </button>
+        <button
+          onClick={onAutoFill}
+          className="font-medium text-slate-500 px-2 py-1 border-2 border-slate-200 bg-slate-100 rounded-md hover:border-slate-300 hover:bg-slate-200 duration-200"
+          type="button">
+          <MissingFont className="text-sm"/>
+        </button>
+      </div>
       <Toaster/>
     </form>
   );

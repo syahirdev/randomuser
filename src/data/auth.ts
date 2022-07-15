@@ -1,6 +1,9 @@
 import sha256 from "crypto-js/sha256";
 
-export const userData = {
+export const authData = {
   username: "beautifultiger295",
-  password: sha256("selena").toString()
+  rawPassword: "selena",
+  get password() {
+    return sha256(this.rawPassword).toString();
+  }
 };

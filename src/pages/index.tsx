@@ -5,7 +5,7 @@ import toast, { Toaster } from "react-hot-toast";
 import { useRouter } from "next/router";
 import { LogOut, RefreshDouble } from "iconoir-react";
 import sha256 from "crypto-js/sha256";
-import { userData } from "../data/auth";
+import { authData } from "../data/auth";
 import { pageData } from "../data/page";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import Card from "../components/Card";
@@ -42,7 +42,7 @@ export default function Home() {
       // Checked for logged in
       if(typeof window !== "undefined") {
         let user = JSON.parse(localStorage.getItem("randomuser-auth") || "{}");
-        if(user.username === userData.username && sha256(user.password).toString() !== userData.password) {
+        if(user.username === authData.username && sha256(user.password).toString() !== authData.password) {
           // Logged in
           onChangePage(currentPage);
           setState(true);
